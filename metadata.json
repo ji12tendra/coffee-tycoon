@@ -1,0 +1,6 @@
+{
+  "name": "Coffee Tycoon: Financial Freedom",
+  "description": "An engaging Coffee Tycoon simulation teaching financial freedom, asset vs liability management, real estate, stocks, mutual funds, gold, loans, and EMI mastery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
