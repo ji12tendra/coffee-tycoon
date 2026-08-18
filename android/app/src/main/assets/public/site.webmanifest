@@ -1,0 +1,53 @@
+{
+  "name": "Coffee Tycoon Financial Freedom",
+  "short_name": "Coffee Tycoon",
+  "description": "Build your artisan coffee empire, hire baristas, automate machines, invest in real estate, and achieve financial freedom in this addictive idle business tycoon simulation game!",
+  "id": "com.coffeetycoon.financialfreedom",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "window-controls-overlay", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#0c1017",
+  "theme_color": "#d97706",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["games", "entertainment", "simulation", "strategy"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "sizes": "540x960",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Coffee Tycoon Gameplay"
+    },
+    {
+      "src": "/screenshot2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Coffee Tycoon Dashboard"
+    }
+  ]
+}
