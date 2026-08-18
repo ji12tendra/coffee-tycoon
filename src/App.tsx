@@ -72,6 +72,9 @@ export default function App() {
     latestUnlockedAchievement,
     claimAchievementReward,
     dismissAchievementNotification,
+    activateRushHourBoost,
+    claimLuckyInvestorGrant,
+    claimOfflineMultiplierReward,
   } = useGameState();
 
   const financials = computeFinancials();
@@ -97,7 +100,7 @@ export default function App() {
   return (
     <div
       id="coffee_tycoon_app"
-      className={`min-h-screen flex flex-col font-sans pb-20 sm:pb-24 antialiased transition-colors duration-200 selection:bg-amber-500 selection:text-white ${
+      className={`min-h-screen flex flex-col font-sans pb-24 sm:pb-28 antialiased transition-colors duration-200 selection:bg-amber-500 selection:text-white w-full max-w-full overflow-x-hidden ${
         isDark ? 'bg-[#0c1017] text-slate-100' : 'bg-[#f7f5f0] text-stone-900'
       }`}
     >
@@ -118,7 +121,7 @@ export default function App() {
       />
 
       {/* 2. Main Game Viewport */}
-      <main className="max-w-5xl mx-auto w-full px-3 sm:px-6 pt-3 sm:pt-4 flex-1">
+      <main className="max-w-5xl mx-auto w-full px-2 sm:px-6 pt-2 sm:pt-4 flex-1 overflow-x-hidden">
         
         {/* Daily Random Event Banner (if active) */}
         <DailyEventsBanner event={state.activeEvent} isHi={isHi} />
@@ -146,6 +149,8 @@ export default function App() {
             onBuyUpgrade={buyBusinessUpgrade}
             onPerformDeepCleaning={performDeepCleaning}
             onServiceEspressoMachine={serviceEspressoMachine}
+            onActivateRushBoost={activateRushHourBoost}
+            onClaimInvestorGrant={claimLuckyInvestorGrant}
           />
         )}
 
@@ -275,6 +280,7 @@ export default function App() {
           isHi={isHi}
           isDark={isDark}
           onClose={closeOfflineModal}
+          onClaimMultiplier={claimOfflineMultiplierReward}
         />
       )}
 

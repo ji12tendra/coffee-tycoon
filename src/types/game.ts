@@ -394,4 +394,10 @@ export interface GameState {
 
   // Last active timestamp for offline earnings
   lastSavedTimestamp: number;
+
+  // Smart Ad & Earning Multipliers (Reward Boosts)
+  activeRushBoostSecondsRemaining: number; // 2x rush hour boost
+  isAdMobEnabled: boolean; // simulated / live ad SDK toggle
+  totalAdsWatched: number; // ad impression count
+  luckyInvestorCashPool: number; // dynamically scaling investor cash grant
 }

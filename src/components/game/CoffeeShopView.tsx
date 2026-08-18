@@ -3,6 +3,7 @@ import { GameState, ShopLevelId, GameTab } from '../../types/game';
 import { SHOP_LEVELS, STAFF_MEMBERS, BUSINESS_UPGRADES } from '../../data/gameData';
 import { formatINR } from '../../utils/formatters';
 import { sound } from '../../utils/audio';
+import { AdRewardModal } from './AdRewardModal';
 import {
   Coffee,
   Package,
@@ -24,6 +25,10 @@ import {
   ArrowRight,
   Layers,
   Award,
+  Play,
+  Flame,
+  BadgeDollarSign,
+  TrendingUp,
 } from 'lucide-react';
 
 interface CoffeeShopViewProps {
@@ -37,6 +42,8 @@ interface CoffeeShopViewProps {
   onBuyUpgrade?: (upgradeId: string) => void;
   onPerformDeepCleaning?: () => void;
   onServiceEspressoMachine?: () => void;
+  onActivateRushBoost?: () => void;
+  onClaimInvestorGrant?: (grantAmount: number) => void;
 }
 
 export const CoffeeShopView: React.FC<CoffeeShopViewProps> = ({
@@ -50,6 +57,8 @@ export const CoffeeShopView: React.FC<CoffeeShopViewProps> = ({
   onBuyUpgrade,
   onPerformDeepCleaning,
   onServiceEspressoMachine,
+  onActivateRushBoost,
+  onClaimInvestorGrant,
 }) => {
   const isHi = state.language === 'hi';
   const isDark = state.theme === 'dark';
@@ -62,6 +71,12 @@ export const CoffeeShopView: React.FC<CoffeeShopViewProps> = ({
   const [tempPrice, setTempPrice] = useState(state.cupPrice);
   const [upgradeCategory, setUpgradeCategory] = useState<'all' | 'equipment' | 'decor' | 'tech'>('all');
   const [vipServedMessage, setVipServedMessage] = useState<string | null>(null);
+
+  // Smart Ad Booster State
+  const [activeAdBooster, setActiveAdBooster] = useState<'rush_2x' | 'angel_investor' | null>(null);
+
+  const investorGrantAmount = state.luckyInvestorCashPool || 25000;
+  const isRushActive = (state.activeRushBoostSecondsRemaining || 0) > 0;
 
   const handleServe = () => {
     const success = onServeManually();
@@ -199,6 +214,35 @@ export const CoffeeShopView: React.FC<CoffeeShopViewProps> = ({
               <span className="font-mono font-black">{state.googleRating.toFixed(1)}</span>
               <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-stone-500'}`}>({state.recentReviews.length})</span>
             </div>
+          </div>
+
+          {/* Smart Ad Reward Boosters Toolbar */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* 2X Rush Boost Active or Trigger Button */}
+            {isRushActive ? (
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-xs shadow-md animate-pulse border border-yellow-200">
+                <Flame className="w-3.5 h-3.5 fill-slate-950" />
+                <span>2X RUSH BOOST:</span>
+                <span className="font-mono font-black">{Math.ceil(state.activeRushBoostSecondsRemaining)}s</span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setActiveAdBooster('rush_2x')}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 hover:from-amber-500 hover:to-yellow-400 hover:text-slate-950 border border-amber-500/40 text-amber-600 dark:text-amber-300 font-bold text-xs transition cursor-pointer group shadow-sm"
+              >
+                <Zap className="w-3.5 h-3.5 fill-amber-500 group-hover:fill-slate-950 text-amber-500 group-hover:text-slate-950 animate-bounce" />
+                <span>{isHi ? '⚡ 2X कमाई बूस्ट (Watch Ad)' : '⚡ 2X Rush Boost (Free)'}</span>
+              </button>
+            )}
+
+            {/* Angel Investor Grant Trigger */}
+            <button
+              onClick={() => setActiveAdBooster('angel_investor')}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 hover:from-emerald-500 hover:to-teal-500 hover:text-white border border-emerald-500/40 text-emerald-600 dark:text-emerald-300 font-bold text-xs transition cursor-pointer group shadow-sm"
+            >
+              <BadgeDollarSign className="w-3.5 h-3.5 text-emerald-500 group-hover:text-white" />
+              <span>{isHi ? `💰 +${formatINR(investorGrantAmount)} ग्रांट` : `💰 +${formatINR(investorGrantAmount)} Grant`}</span>
+            </button>
           </div>
 
           {/* Quick Maintenance Indicators */}
@@ -894,6 +938,46 @@ export const CoffeeShopView: React.FC<CoffeeShopViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* Rewarded Video Ad Modal for 2X Rush Hour Boost */}
+      <AdRewardModal
+        isOpen={activeAdBooster === 'rush_2x'}
+        onClose={() => setActiveAdBooster(null)}
+        onRewardGranted={() => {
+          if (onActivateRushBoost) {
+            onActivateRushBoost();
+          }
+        }}
+        isDark={isDark}
+        title={{
+          en: '2X Rush Hour Cash & Speed Boost',
+          hi: '2X रश ऑवर: दोगुनी कमाई और तेज़ कस्टमर फ्लो',
+        }}
+        rewardDescription={{
+          en: 'Get 3 full minutes of 2X faster orders and +50% extra cup price tolerance!',
+          hi: 'अगले 3 मिनट के लिए 2X तेज़ कस्टमर ऑर्डर्स और 50% ज़्यादा मुनाफा!',
+        }}
+      />
+
+      {/* Rewarded Video Ad Modal for Angel Investor Grant */}
+      <AdRewardModal
+        isOpen={activeAdBooster === 'angel_investor'}
+        onClose={() => setActiveAdBooster(null)}
+        onRewardGranted={() => {
+          if (onClaimInvestorGrant) {
+            onClaimInvestorGrant(investorGrantAmount);
+          }
+        }}
+        isDark={isDark}
+        title={{
+          en: 'VIP Angel Investor Venture Grant',
+          hi: 'VIP एंजल इन्वेस्टर बिज़नेस ग्रांट',
+        }}
+        rewardDescription={{
+          en: `Claim instant +${formatINR(investorGrantAmount)} expansion grant with 0% equity dilution!`,
+          hi: `तुरंत +${formatINR(investorGrantAmount)} फ्री बिज़नेस ग्रांट कैश अपने खाते में पाएं!`,
+        }}
+      />
 
     </div>
   );

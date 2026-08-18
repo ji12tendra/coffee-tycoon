@@ -171,6 +171,12 @@ const INITIAL_GAME_STATE: GameState = {
   language: 'hi',
   soundEnabled: true,
   theme: 'light',
+
+  // Smart Ad & Earning Multipliers
+  activeRushBoostSecondsRemaining: 0,
+  isAdMobEnabled: true,
+  totalAdsWatched: 0,
+  luckyInvestorCashPool: 25000,
 };
 
 export const useGameState = () => {
@@ -384,15 +390,20 @@ export const useGameState = () => {
         upgradeSpeedMultiplier *= 1.25;
       }
 
+      // Active 2x Rewarded Rush Hour Boost
+      const isRushBoostActive = (s.activeRushBoostSecondsRemaining || 0) > 0;
+      const rushBoostMultiplier = isRushBoostActive ? 2.0 : 1.0;
+
       const totalServesRate =
         staffAutoServes *
         moraleSpeedFactor *
         peakDemandMultiplier *
         deliveryBoost *
         eventSalesMultiplier *
-        upgradeSpeedMultiplier;
+        upgradeSpeedMultiplier *
+        rushBoostMultiplier;
 
-      const servesThisTick = Math.min(12, totalServesRate * 0.5 * speed);
+      const servesThisTick = Math.min(16, totalServesRate * 0.5 * speed);
 
       // Ingredients consumption
       const beansRequired = servesThisTick * 15;
@@ -412,9 +423,12 @@ export const useGameState = () => {
       if (canServe && servesThisTick > 0) {
         actualServes = servesThisTick;
         const inStoreProportion = s.isOnlineDeliveryActive ? 0.75 : 1.0;
-        inStoreRevenueEarned = actualServes * inStoreProportion * s.cupPrice;
-        onlineDeliveryRevenueEarned = actualServes * (1 - inStoreProportion) * s.cupPrice;
+        const effectiveCupPrice = s.cupPrice * (isRushBoostActive ? 1.5 : 1.0); // Extra price tolerance during rush
+        inStoreRevenueEarned = actualServes * inStoreProportion * effectiveCupPrice;
+        onlineDeliveryRevenueEarned = actualServes * (1 - inStoreProportion) * effectiveCupPrice;
       }
+
+      const nextRushSecondsRemaining = Math.max(0, (s.activeRushBoostSecondsRemaining || 0) - stepSeconds);
 
       const totalGrossRevenueThisTick = inStoreRevenueEarned + onlineDeliveryRevenueEarned;
 
@@ -845,6 +859,7 @@ export const useGameState = () => {
           realEstateOwned: updatedRealEstate,
           purchasedLuxuries: updatedLuxuries,
           dailyFinancialHistory: nextFinancialHistory,
+          activeRushBoostSecondsRemaining: nextRushSecondsRemaining,
         }));
       } else {
         // Intraday standard tick
@@ -862,6 +877,7 @@ export const useGameState = () => {
           cleanlinessScore: updatedCleanliness,
           machineHealthScore: updatedMachineHealth,
           staffMoraleScore: updatedMorale,
+          activeRushBoostSecondsRemaining: nextRushSecondsRemaining,
         }));
       }
     }, 500);
@@ -2063,5 +2079,39 @@ export const useGameState = () => {
     latestUnlockedAchievement,
     claimAchievementReward,
     dismissAchievementNotification,
+
+    // Smart Ad Reward Actions
+    activateRushHourBoost: (durationSeconds = 180) => {
+      sound.playFanfare();
+      sound.playChaChing();
+      setState((prev) => ({
+        ...prev,
+        activeRushBoostSecondsRemaining: (prev.activeRushBoostSecondsRemaining || 0) + durationSeconds,
+        totalAdsWatched: (prev.totalAdsWatched || 0) + 1,
+      }));
+    },
+    claimLuckyInvestorGrant: (grantAmount: number) => {
+      sound.playFanfare();
+      sound.playChaChing();
+      setState((prev) => ({
+        ...prev,
+        cash: prev.cash + grantAmount,
+        totalAdsWatched: (prev.totalAdsWatched || 0) + 1,
+        luckyInvestorCashPool: Math.round(grantAmount * 1.35), // Scales up as player grows!
+      }));
+    },
+    claimOfflineMultiplierReward: (multiplier: number) => {
+      sound.playFanfare();
+      sound.playChaChing();
+      setState((prev) => {
+        if (!offlineEarningsModal) return prev;
+        const extraCash = Math.max(0, offlineEarningsModal.netCashChange * (multiplier - 1));
+        return {
+          ...prev,
+          cash: prev.cash + extraCash,
+          totalAdsWatched: (prev.totalAdsWatched || 0) + 1,
+        };
+      });
+    },
   };
 };

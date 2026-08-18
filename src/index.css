@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
 @layer base {
+  html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  #root, #coffee_tycoon_app {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, .font-display {
@@ -12,6 +29,24 @@
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
+}
+
+/* Safe area support for notch and Android gesture pill */
+.safe-top-padding {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
+
+.safe-bottom-padding {
+  padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+}
+
+/* Hide scrollbar for clean mobile tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @keyframes steamRise {
